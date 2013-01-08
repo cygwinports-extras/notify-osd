@@ -1,0 +1,32 @@
+NAME="notify-osd"
+VERSION=0.9.34
+RELEASE=1
+CATEGORY="X11"
+SUMMARY="Ubuntu notification daemon"
+DESCRIPTION="Canonical's on-screen-display notification agent, implementing the
+freedesktop.org Desktop Notifications Specification with semi-transparent
+click-through bubbles."
+HOMEPAGE="https://launchpad.net/notify-osd/"
+SRC_URI="https://launchpad.net/notify-osd/precise/${VERSION}/+download/${NAME}-${VERSION}.tar.gz"
+
+CYGCONF_ARGS="--libexecdir=/usr/bin"
+
+src_install() {
+	cd ${B}
+	cyginstall service_DATA=
+
+	# do not install the DBus service file because multiple programs
+	# can provide org.freedesktop.Notifications (gnome-shell, KDE Plasma,
+	# GNOME/MATE notification-daemon, Razor qtnotifydaemon, XFCE notifyd)
+	# but only one can run at a given time.  The supported solution is
+	# for none of them to register for DBus autostart, but leave the
+	# session manager to launch the service provider for the given desktop.
+	dodir /etc/xdg/autostart
+	cat > ${D}/etc/xdg/autostart/${NAME}.desktop <<_EOF
+[Desktop Entry]
+Type=Application
+Name=Notify OSD
+Exec=notify-osd
+OnlyShowIn=Unity;
+_EOF
+}
